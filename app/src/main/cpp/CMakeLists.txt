@@ -8,6 +8,8 @@ set(ENABLE_SYSTEM_PROJECTM_EVAL OFF CACHE BOOL "" FORCE)
 # Keep the build machine's paths out of the shipped .so files (__FILE__ in asserts/logs): repo root -> "."
 get_filename_component(REPO_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../../.. ABSOLUTE)
 add_compile_options(-ffile-prefix-map=${REPO_ROOT}=.)
+# Google Play: native libraries must support 16 KB memory pages.
+add_link_options(-Wl,-z,max-page-size=16384)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../../../third_party/projectm projectm)
 
