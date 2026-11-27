@@ -6,6 +6,27 @@ Audio: the **Visualizer API** by default (mono 8-bit, ~20 Hz, works with Spotify
 
 Permissions: only the microphone permission (`RECORD_AUDIO`), which the Visualizer API requires. It isn't logged as microphone use. Plus `MODIFY_AUDIO_SETTINGS` and the car template permissions, granted at install. No casting or screen-capture prompt, and no foreground service.
 
+## Install a downloaded APK
+
+You need:
+- An Android 10+ phone (arm64), with Android Auto and Spotify installed.
+- A car with Android Auto, or the Desktop Head Unit (see *Run on the DHU*).
+
+1. Download `aa-projectm-v<version>-debug.apk` from this repo's **Releases** page. Optionally, check it against the SHA-256 in the release notes: run `sha256sum aa-projectm-*.apk` on Linux, or `Get-FileHash aa-projectm-*.apk` in Windows PowerShell.
+2. Install it with either method:
+   - **On the phone:** open the downloaded file, for example from the browser's downloads or the Files app. When prompted, allow *Install unknown apps* for that app, then tap **Install**. Play Protect may warn about an unknown developer; tap *More details → Install anyway*.
+   - **From a computer** with USB or wireless debugging on:
+     ```bash
+     adb install -r aa-projectm-v<version>-debug.apk
+     ```
+3. Open **AA projectM** on the phone once and allow the microphone permission. The Visualizer API requires it; nothing is recorded.
+4. Let Android Auto show sideloaded apps:
+   1. Open Android Auto settings and tap *Version* about 10 times until developer mode turns on.
+   2. Tap **⋮ → Developer settings** and enable **Unknown sources**.
+5. Connect to the car (or start the DHU), play something in Spotify, and open **AA projectM** from the Android Auto launcher.
+
+**About the signature:** the APK is a debug build. It's signed only with the build machine's debug key, not a release key, which is what makes sideloading possible. An update signed with a different key won't install over it ("App not installed" / "package conflicts"). In that case, uninstall AA projectM first, then install the new APK.
+
 ## Build
 ```bash
 git submodule update --init --recursive
