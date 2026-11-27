@@ -4,7 +4,7 @@ This app is licensed for noncommercial use only (see [LICENSE](LICENSE)). In the
 
 ## projectM: LGPL-2.1
 
-- **What:** libprojectM, the MilkDrop-compatible renderer. Copyright (C) 2003-2009 projectM Team and contributors.
+- **What:** libprojectM, the open-source reimplementation of the esteemed [Winamp MilkDrop](https://en.wikipedia.org/wiki/MilkDrop) by Ryan Geiss (Nullsoft). Copyright (C) 2003-2009 projectM Team and contributors.
 - **Version:** v4.1.8, unmodified. It's a git submodule at `third_party/projectm` (commit `4967dc0`). Source: <https://github.com/projectM-visualizer/projectm/tree/v4.1.8>.
 - **License:** GNU Lesser General Public License 2.1. Full text: [`third_party/projectm/LICENSE.txt`](third_party/projectm/LICENSE.txt), or <https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html>.
 - **How it's used:** dynamically linked. The APK ships it as its own library, `lib/<abi>/libprojectM-4.so`. The app calls only its public C API (`projectM-4/*.h`). You may replace that library with your own build of projectM (LGPL-2.1 §6). Rebuild with the steps in the README, or swap the `.so` in the APK and re-sign it. LICENSE allows you to modify this app and reverse-engineer it to debug such changes.
@@ -44,7 +44,7 @@ SOFTWARE.
 ## MilkDrop presets
 
 - **Source:** the 200 presets in `app/src/main/assets/presets/` are an unmodified random selection from [presets-cream-of-the-crop](https://github.com/projectM-visualizer/presets-cream-of-the-crop) (commit `0180df2`). ISOSCELES curated and sorted that collection, and the projectM team distributes it. The files were renamed to `<category>-<original name>`.
-- **Authors:** each preset is the work of its author, credited in the README's preset list. MilkDrop itself was created by Ryan Geiss.
+- **Authors:** each preset is the work of its author, credited in the README's preset list. MilkDrop itself, and its preset format, are the work of Ryan Geiss, released with Winamp by Nullsoft. This app contains no MilkDrop code and isn't affiliated with or endorsed by Ryan Geiss, Nullsoft or Winamp.
 - **License:** in almost all cases these presets were released without a license. The projectM team's position is that each author holds copyright, and that freely released presets can be treated as public domain. If you're a preset author and want yours removed, open an issue and it will be taken out.
 
 ## Android libraries in the APK: Apache-2.0

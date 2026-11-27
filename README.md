@@ -1,6 +1,6 @@
 # AA projectM (POC, sideload only)
 
-projectM (MilkDrop-compatible) drawn into an Android Auto `NavigationTemplate` surface.
+Music visuals on the Android Auto car screen, rendered by [projectM](https://github.com/projectM-visualizer/projectm), the open-source reimplementation of the esteemed [Winamp MilkDrop](https://en.wikipedia.org/wiki/MilkDrop) by Ryan Geiss (Nullsoft). They're drawn into an Android Auto `NavigationTemplate` surface.
 
 Audio: the **Visualizer API** by default (mono 8-bit, ~20 Hz, works with Spotify). It attaches to the session a player announces (remembered across launches, retried while Android Auto moves the track to its projection output). The global-mix fallback (session 0) is silent during projection, since media then plays on the remote-submix output. **Spotify only**: other players don't announce their session (tested: MX Player, TikTok), and YouTube won't play during projection. Stereo `AudioPlaybackCapture` (`CaptureService`) is kept in the source but disabled: commented out of the manifest and phone UI, because Spotify blocks it.
 
@@ -63,8 +63,8 @@ The APK carries the full license texts in `assets/licenses/` (copied from the re
 The code in this repository is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). That means noncommercial use only.
 
 It builds on others' work, which keeps its own licenses (details in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)):
-- **[projectM](https://github.com/projectM-visualizer/projectm)** by the projectM Team, the MilkDrop-compatible renderer: LGPL-2.1. It's used unmodified (v4.1.8) and dynamically linked as `libprojectM-4.so`, which you're free to replace with your own build.
-- **MilkDrop**, created by Ryan Geiss. This app has no MilkDrop code; it plays MilkDrop-format presets through projectM.
+- **[projectM](https://github.com/projectM-visualizer/projectm)** by the projectM Team, which reimplements the esteemed [Winamp MilkDrop](https://en.wikipedia.org/wiki/MilkDrop) by Ryan Geiss (Nullsoft): LGPL-2.1. It's used unmodified (v4.1.8) and dynamically linked as `libprojectM-4.so`, which you're free to replace with your own build.
+- **MilkDrop:** the original visualizer and its preset format are the work of Ryan Geiss, released with Winamp by Nullsoft. This app contains no MilkDrop code and isn't affiliated with or endorsed by Ryan Geiss, Nullsoft or Winamp; it plays MilkDrop-format presets through projectM. MilkDrop and Winamp are names of their respective owners.
 - **Presets** by their individual authors (listed below), from the [presets-cream-of-the-crop](https://github.com/projectM-visualizer/presets-cream-of-the-crop) collection curated by ISOSCELES and distributed by the projectM team. Authors who want a preset removed can open an issue.
 - **Android libraries:** AndroidX and the Car App Library, Guava and Kotlin stdlib (Apache-2.0); Checker Framework qualifiers (MIT); LLVM libc++ (Apache-2.0 with LLVM exception).
 
