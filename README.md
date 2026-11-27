@@ -12,8 +12,10 @@ You need:
 - An Android 10+ phone (arm64), with Android Auto and Spotify installed.
 - A car with Android Auto, or the Desktop Head Unit (see *Run on the DHU*).
 
+> **Parked use only.** The speed guard is inactive in this build, so the visuals keep animating while the car moves. Only open AA projectM in a car that's parked.
+
 1. Download `aa-projectm-v<version>-debug.apk` from this repo's **Releases** page. Optionally, check it against the SHA-256 in the release notes: run `sha256sum aa-projectm-*.apk` on Linux, or `Get-FileHash aa-projectm-*.apk` in Windows PowerShell.
-2. Install it with either method:
+2. Install it. **For a real car, use KingInstaller** (see [Real head units](#real-head-units-install-with-kinginstaller) below); otherwise Android Auto won't list the app. For the DHU only, either of these works:
    - **On the phone:** open the downloaded file, for example from the browser's downloads or the Files app. When prompted, allow *Install unknown apps* for that app, then tap **Install**. Play Protect may warn about an unknown developer; tap *More details → Install anyway*.
    - **From a computer** with USB or wireless debugging on:
      ```bash
@@ -24,6 +26,30 @@ You need:
    1. Open Android Auto settings and tap *Version* about 10 times until developer mode turns on.
    2. Tap **⋮ → Developer settings** and enable **Unknown sources**.
 5. Connect to the car (or start the DHU), play something in Spotify, and open **AA projectM** from the Android Auto launcher.
+
+### Real head units: install with KingInstaller
+
+On a real head unit, Android Auto only lists third-party car apps whose install record says they came from Google Play. *Unknown sources* isn't enough. The DHU skips this check, which is why the app shows up there anyway. Installed any other way, AA projectM can still open by itself when it was the last navigation app used, but it won't appear in the car's app grid.
+
+[KingInstaller](https://github.com/fcaronte/KingInstaller) can record Google Play as the installer. Verified on a Samsung SM-N986W (Android 13) with a ZLink head unit, using the release-signed v0.2 build and KingInstaller's standard method (no Shizuku needed). The debug APK should behave the same, but hasn't been tested this way:
+
+1. Uninstall any existing AA projectM.
+2. Install KingInstaller from its [GitHub releases](https://github.com/fcaronte/KingInstaller/releases) (GPL-3.0; a port of the GitLab original by annexhack).
+3. In KingInstaller, select the AA projectM APK and install it with the **standard** method.
+4. Check the install record, if you have adb:
+   ```bash
+   adb shell dumpsys package dev.poc.aaprojectm | grep installerPackageName
+   ```
+   It should say `installerPackageName=com.android.vending`.
+5. Open AA projectM once on the phone and allow the microphone, then reconnect to the car. AA projectM should now be in the app grid.
+
+If the app still doesn't appear, uninstall it and repeat with KingInstaller's **Shizuku Trick** toggle on. That needs [Shizuku](https://github.com/RikkaApps/Shizuku) running.
+
+Notes:
+- **What this does:** it records Google Play as the installer even though the app didn't come from Google Play. That's what gets it past Android Auto's check. It's your device and your decision.
+- **Plain adb doesn't work:** `adb install -i com.android.vending` sets the same installer field, and Android Auto still rejected the app. The likely reason is that adb's shell is recorded as the *initiating* installer; Android 13 doesn't show that field, so this is inferred, not observed.
+- **Repeat for every update:** installing a new version any other way resets the record.
+- **The supported route is Google Play:** an internal testing track does the same job without this workaround.
 
 **About the signature:** the APK is a debug build. It's signed only with the build machine's debug key, not a release key, which is what makes sideloading possible. An update signed with a different key won't install over it ("App not installed" / "package conflicts"). In that case, uninstall AA projectM first, then install the new APK.
 
@@ -54,6 +80,7 @@ Check with `adb logcat -s viz`:
 - First DHU connect needs "Add new cars to Android Auto" on and the car approved on the unlocked phone.
 - No `CAR_SPEED` permission, so the speed guard never receives speed and the visuals always render. Restore the permission (manifest + runtime request) before any demo in a car that can move.
 - `HostValidator.ALLOW_ALL_HOSTS_VALIDATOR` is for sideloading only.
+- Real head units only list the app when its install record says it came from Google Play (see [Real head units](#real-head-units-install-with-kinginstaller)). The DHU skips that check (`AppValidation__dhu_bypass_validation` in Android Auto), and the DHU can't be configured to report another identity, so only a real head unit shows whether an install passes.
 - Presets: 200 random texture-free picks from [presets-cream-of-the-crop](https://github.com/projectM-visualizer/presets-cream-of-the-crop) (7,925 qualify; all of them would add ~27 MB to the APK). Regenerate with `tools/pick-presets.py <checkout> [N] [seed]`. They play as a shuffled playlist. Some may not compile on GLES and render poorly; not screened yet. Visible/stable area is ignored, so the visuals run under the action strip.
 
 ## License and attribution
