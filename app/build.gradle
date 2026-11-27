@@ -21,3 +21,15 @@ dependencies {
     implementation 'androidx.car.app:app:1.7.0'
     implementation 'androidx.car.app:app-projected:1.7.0'
 }
+
+// Ship license texts inside the APK (assets/licenses/), copied from the repo so they can't drift.
+def noticesDir = layout.buildDirectory.dir('generated/notices')
+def copyNotices = tasks.register('copyNotices', Copy) {
+    from(rootProject.file('LICENSE')) { rename { 'LICENSE.txt' } }
+    from(rootProject.file('THIRD_PARTY_NOTICES.md'))
+    from(rootProject.file('licenses/Apache-2.0.txt'))
+    from(rootProject.file('third_party/projectm/LICENSE.txt')) { rename { 'projectM-LGPL-2.1.txt' } }
+    into(noticesDir.map { it.dir('licenses') })
+}
+android.sourceSets.main.assets.srcDir(noticesDir)
+tasks.named('preBuild') { dependsOn copyNotices }

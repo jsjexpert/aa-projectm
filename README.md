@@ -25,6 +25,7 @@ Check with `adb logcat -s viz`:
 - `... fps` lines are frame-rate readouts per 300 frames.
 
 ## Known limits
+- **Which players work:** the Visualizer source needs the player to announce its audio session (`ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION`, the hook system equalizers use). Spotify does. Players that don't announce leave the visuals running without audio during projection: the global mix is silent then, and Android hides other apps' session IDs (`AudioPlaybackConfiguration` reports 0). Optional playback capture covers players that allow capture, at the cost of a consent prompt on the phone.
 - Reinstalling during a DHU session leaves the car surface held by the killed process (`EGL_BAD_ALLOC`, nothing drawn). Restart the DHU after each install.
 - Spotify 9.2.x blocks playback capture (verified on SM-N986W / Android 13), hence the Visualizer default. For playback capture, start it *before* pressing play, since routing is fixed when the app opens its stream.
 - First DHU connect needs "Add new cars to Android Auto" on and the car approved on the unlocked phone.
@@ -33,6 +34,8 @@ Check with `adb logcat -s viz`:
 - Presets: 200 random texture-free picks from [presets-cream-of-the-crop](https://github.com/projectM-visualizer/presets-cream-of-the-crop) (7,925 qualify; all of them would add ~27 MB to the APK). Regenerate with `tools/pick-presets.py <checkout> [N] [seed]`. They play as a shuffled playlist. Some may not compile on GLES and render poorly; not screened yet. Visible/stable area is ignored, so the visuals run under the action strip.
 
 ## License and attribution
+
+The APK carries the full license texts in `assets/licenses/` (copied from the repo at build time); the phone app shows them under *Open-source licenses*.
 
 The code in this repository is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). That means noncommercial use only.
 

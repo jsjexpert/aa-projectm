@@ -38,11 +38,35 @@ public final class MainActivity extends Activity {
         root.addView(status);
         root.addView(start);
         root.addView(stop);
+        Button licenses = new Button(this);
+        licenses.setText("Open-source licenses");
+        licenses.setOnClickListener(v -> showLicenses());
+        root.addView(licenses);
         setContentView(root);
     }
 
     @Override protected void onResume() { super.onResume(); refresh(); }
 
+    /** Shows the license texts bundled under assets/licenses/ (copied from the repo at build time). */
+    private void showLicenses() {
+        StringBuilder sb = new StringBuilder();
+        for (String f : new String[]{"LICENSE.txt", "THIRD_PARTY_NOTICES.md", "projectM-LGPL-2.1.txt", "Apache-2.0.txt"}) {
+            try (java.io.InputStream in = getAssets().open("licenses/" + f)) {
+                sb.append("==== ").append(f).append(" ====\n\n")
+                  .append(new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8)).append("\n\n");
+            } catch (java.io.IOException e) {
+                sb.append("==== ").append(f).append(": missing ====\n\n");
+            }
+        }
+        TextView t = new TextView(this);
+        t.setText(sb);
+        t.setTextIsSelectable(true);
+        t.setPadding(32, 32, 32, 32);
+        android.widget.ScrollView sv = new android.widget.ScrollView(this);
+        sv.addView(t);
+        new android.app.AlertDialog.Builder(this).setTitle("Open-source licenses").setView(sv)
+                .setPositiveButton(android.R.string.ok, null).show();
+    }
 
     @Override protected void onActivityResult(int req, int code, Intent data) {
         if (req == 1 && code == RESULT_OK) {

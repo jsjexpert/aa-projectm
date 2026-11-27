@@ -1,6 +1,6 @@
 # Third-party notices
 
-This app is licensed for noncommercial use only (see [LICENSE](LICENSE)). That license covers only the original code in this repository. The components below keep their own licenses, and nothing in LICENSE restricts the rights those licenses give you.
+This app is licensed for noncommercial use only (see [LICENSE](LICENSE)). In the APK, this file and the full license texts are in `assets/licenses/`, and the phone app shows them under *Open-source licenses*. That license covers only the original code in this repository. The components below keep their own licenses, and nothing in LICENSE restricts the rights those licenses give you.
 
 ## projectM: LGPL-2.1
 
@@ -49,7 +49,7 @@ SOFTWARE.
 
 ## Android libraries in the APK: Apache-2.0
 
-The following are licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) and are copyright their respective authors:
+The following are licensed under the [Apache License 2.0](licenses/Apache-2.0.txt) and are copyright their respective authors:
 - **AndroidX:** Car App Library (`androidx.car.app:app`, `app-projected`), core, activity, annotation, collection, concurrent-futures, lifecycle, media, savedstate, tracing, versionedparcelable, arch-core. © The Android Open Source Project.
 - **Guava**, failureaccess and listenablefuture. © The Guava Authors.
 - **Kotlin standard library.** © JetBrains s.r.o. and Kotlin Programming Language contributors.
