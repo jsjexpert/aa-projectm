@@ -14,12 +14,12 @@ You need:
 
 > **Parked use only.** The speed guard is inactive in this build, so the visuals keep animating while the car moves. Only open AA projectM in a car that's parked.
 
-1. Download `aa-projectm-v<version>-debug.apk` from this repo's **Releases** page. Optionally, check it against the SHA-256 in the release notes: run `sha256sum aa-projectm-*.apk` on Linux, or `Get-FileHash aa-projectm-*.apk` in Windows PowerShell.
+1. Download the APK (`aa-projectm-v<version>-release.apk`; v0.1 was `-debug.apk`) from this repo's **Releases** page. Optionally, check it against the SHA-256 in the release notes: run `sha256sum aa-projectm-*.apk` on Linux, or `Get-FileHash aa-projectm-*.apk` in Windows PowerShell.
 2. Install it. **For a real car, use KingInstaller** (see [Real head units](#real-head-units-install-with-kinginstaller) below); otherwise Android Auto won't list the app. For the DHU only, either of these works:
    - **On the phone:** open the downloaded file, for example from the browser's downloads or the Files app. When prompted, allow *Install unknown apps* for that app, then tap **Install**. Play Protect may warn about an unknown developer; tap *More details → Install anyway*.
    - **From a computer** with USB or wireless debugging on:
      ```bash
-     adb install -r aa-projectm-v<version>-debug.apk
+     adb install -r aa-projectm-v<version>-release.apk
      ```
 3. Open **AA projectM** on the phone once and allow the microphone permission. The Visualizer API requires it; nothing is recorded.
 4. Let Android Auto show sideloaded apps:
@@ -51,7 +51,7 @@ Notes:
 - **Repeat for every update:** installing a new version any other way resets the record.
 - **The supported route is Google Play:** an internal testing track does the same job without this workaround.
 
-**About the signature:** the APK is a debug build. It's signed only with the build machine's debug key, not a release key, which is what makes sideloading possible. An update signed with a different key won't install over it ("App not installed" / "package conflicts"). In that case, uninstall AA projectM first, then install the new APK.
+**About the signature:** from v0.2, the APK is a release build signed with the project's upload key; v0.1 was a debug build signed with a debug key. Android won't install an update signed with a different key ("App not installed" / "package conflicts"). Builds installed from Google Play are also signed with a different key (Google's). So when switching between v0.1, v0.2 and a Play install, uninstall AA projectM first.
 
 ## Build
 ```bash
