@@ -2,7 +2,9 @@
 
 projectM (MilkDrop-compatible) drawn into an Android Auto `NavigationTemplate` surface.
 
-Audio: the **Visualizer API** by default (mono 8-bit, ~20 Hz, works with Spotify). It attaches to the session a player announces (remembered across launches, retried while Android Auto moves the track to its projection output). The global-mix fallback (session 0) is silent during projection, since media then plays on the remote-submix output. `AudioPlaybackCapture` (stereo float) is optional from the phone app and takes over while running, but Spotify blocks it.
+Audio: the **Visualizer API** by default (mono 8-bit, ~20 Hz, works with Spotify). It attaches to the session a player announces (remembered across launches, retried while Android Auto moves the track to its projection output). The global-mix fallback (session 0) is silent during projection, since media then plays on the remote-submix output. **Spotify only**: other players don't announce their session (tested: MX Player, TikTok), and YouTube won't play during projection. Stereo `AudioPlaybackCapture` (`CaptureService`) is kept in the source but disabled: commented out of the manifest and phone UI, because Spotify blocks it.
+
+Permissions: only the microphone permission (`RECORD_AUDIO`), which the Visualizer API requires. It isn't logged as microphone use. Plus `MODIFY_AUDIO_SETTINGS` and the car template permissions, granted at install. No casting or screen-capture prompt, and no foreground service.
 
 ## Build
 ```bash
@@ -21,13 +23,13 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 Check with `adb logcat -s viz`:
 - `Visualizer on session N` shows which audio session is being visualized (0 = global mix).
-- `capture peak` lines appear only when optional playback capture is on; 0.0 means the source app opts out.
+- `vis peak` every ~5 s: the level on the attached session (0.0 = silence or the wrong session).
 - `... fps` lines are frame-rate readouts per 300 frames.
 
 ## Known limits
-- **Which players work:** the Visualizer source needs the player to announce its audio session (`ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION`, the hook system equalizers use). Spotify does. Players that don't announce leave the visuals running without audio during projection: the global mix is silent then, and Android hides other apps' session IDs (`AudioPlaybackConfiguration` reports 0). Optional playback capture covers players that allow capture, at the cost of a consent prompt on the phone.
+- **Which players work:** the Visualizer source needs the player to announce its audio session (`ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION`, the hook system equalizers use). Spotify does. Players that don't announce leave the visuals running without audio during projection: the global mix is silent then, and Android hides other apps' session IDs (`AudioPlaybackConfiguration` reports 0). Re-enabling `CaptureService` would cover players that allow capture, at the cost of a consent prompt on the phone.
 - Reinstalling during a DHU session leaves the car surface held by the killed process (`EGL_BAD_ALLOC`, nothing drawn). Restart the DHU after each install.
-- Spotify 9.2.x blocks playback capture (verified on SM-N986W / Android 13), hence the Visualizer default. For playback capture, start it *before* pressing play, since routing is fixed when the app opens its stream.
+- Spotify 9.2.x blocks playback capture (verified on SM-N986W / Android 13), hence the Visualizer source. If `CaptureService` is re-enabled, start it *before* pressing play, since routing is fixed when the app opens its stream.
 - First DHU connect needs "Add new cars to Android Auto" on and the car approved on the unlocked phone.
 - No `CAR_SPEED` permission, so the speed guard never receives speed and the visuals always render. Restore the permission (manifest + runtime request) before any demo in a car that can move.
 - `HostValidator.ALLOW_ALL_HOSTS_VALIDATOR` is for sideloading only.

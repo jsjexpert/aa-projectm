@@ -10,21 +10,20 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-/** Phone-side: grants permissions and starts the capture service (consent can only be shown here). */
+/** Phone-side: grants the microphone permission the Visualizer API requires, and shows licenses. */
 public final class MainActivity extends Activity {
     private TextView status;
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
-        String[] perms = Build.VERSION.SDK_INT >= 33
-                ? new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.POST_NOTIFICATIONS}
-                : new String[]{Manifest.permission.RECORD_AUDIO};
-        requestPermissions(perms, 0);
+        // Visualizer API needs RECORD_AUDIO granted; it is not logged as microphone use.
+        requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, 0);
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(48, 96, 48, 48);
         status = new TextView(this);
+        /* DISABLED: stereo playback capture (see CaptureService).
         Button start = new Button(this);
         start.setText("Optional: stereo playback capture (not Spotify)");
         start.setOnClickListener(v -> startActivityForResult(
@@ -35,9 +34,10 @@ public final class MainActivity extends Activity {
             stopService(new Intent(this, CaptureService.class));
             refresh();
         });
-        root.addView(status);
         root.addView(start);
         root.addView(stop);
+        */
+        root.addView(status);
         Button licenses = new Button(this);
         licenses.setText("Open-source licenses");
         licenses.setOnClickListener(v -> showLicenses());
@@ -68,6 +68,7 @@ public final class MainActivity extends Activity {
                 .setPositiveButton(android.R.string.ok, null).show();
     }
 
+    /* DISABLED: stereo playback capture (see CaptureService).
     @Override protected void onActivityResult(int req, int code, Intent data) {
         if (req == 1 && code == RESULT_OK) {
             startForegroundService(new Intent(this, CaptureService.class)
@@ -75,10 +76,10 @@ public final class MainActivity extends Activity {
         }
         status.postDelayed(this::refresh, 500);
     }
+    */
 
     private void refresh() {
-        status.setText(CaptureService.running
-                ? "Capturing. Play music, then open AA projectM on the head unit.\nCheck: adb logcat -s viz"
-                : "Audio comes from the Visualizer API by default (works with Spotify).\nPlayback capture is an optional higher-quality source for apps that allow it.");
+        status.setText("Play music in Spotify, then open AA projectM on the car screen.\n"
+                + "Audio comes from Spotify's announced session (Visualizer API, mono). Other players are not supported.");
     }
 }

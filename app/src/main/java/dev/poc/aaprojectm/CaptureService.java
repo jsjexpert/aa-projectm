@@ -15,7 +15,12 @@ import android.media.projection.MediaProjectionManager;
 import android.os.IBinder;
 import android.util.Log;
 
-/** Captures other apps' playback (AudioPlaybackCapture) and feeds it to projectM. */
+/**
+ * DISABLED (unreachable): not declared in the manifest and nothing starts it. Kept for reference.
+ * Captures other apps' playback (AudioPlaybackCapture, stereo float) and feeds it to projectM.
+ * Hears players that allow capture (MX Player, TikTok, YouTube...) but not Spotify, which opts out.
+ * To re-enable: uncomment the service + permissions in AndroidManifest.xml and the button in MainActivity.
+ */
 public final class CaptureService extends Service {
     static final String EXTRA_CODE = "code", EXTRA_DATA = "data";
     static volatile boolean running;
