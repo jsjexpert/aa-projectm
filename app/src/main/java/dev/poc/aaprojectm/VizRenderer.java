@@ -17,7 +17,6 @@ import androidx.car.app.SurfaceContainer;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Random;
 
 /** Owns the GL thread that draws projectM into the NavigationTemplate surface. */
 final class VizRenderer implements SurfaceCallback {
@@ -27,20 +26,50 @@ final class VizRenderer implements SurfaceCallback {
 
     private final AssetManager assets;
     private final String[] presets;
-    private final Random rnd = new Random();
+    private final String[] tests;  // projectM regression presets that draw the raw audio, for validating audio -> visuals
+    private final java.util.List<String> bag = new java.util.ArrayList<>();  // shuffled playlist, render thread only
+    private String current;
     private Thread thread;
     private volatile boolean running;
     volatile boolean paused;          // set by the speed guard
-    private volatile boolean nextRequested;
+    private volatile boolean nextRequested, testRequested;
+    private int testIdx = -1;  // render thread only; >= 0 locks onto a test preset
 
     VizRenderer(AssetManager assets) {
         this.assets = assets;
         String[] p;
         try { p = assets.list("presets"); } catch (IOException e) { p = new String[0]; }
         presets = p;
+        try { p = assets.list("test-presets"); } catch (IOException e) { p = new String[0]; }
+        java.util.Arrays.sort(p);
+        tests = p;
     }
 
-    void next() { nextRequested = true; }
+    // Taps on the surface: 1 (or 2) = next visualizer, leaving test mode; 3 quick = test mode / next test preset.
+    private static final long TAP_WINDOW_MS = 400;  // calibration knob for head-unit touch latency
+    // After a double-tap zoom the host holds the next click until its own double-tap timeout passes
+    // (~600 ms measured on the DHU), so wait longer there for a possible third tap.
+    private static final long AFTER_ZOOM_WINDOW_MS = 900;
+    private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
+    private int taps;
+    private final Runnable resolveTaps = () -> {
+        if (taps >= 3) testRequested = true; else nextRequested = true;
+        taps = 0;
+    };
+
+    // The host turns a quick double-tap into a zoom (scale exactly 2.0) and drops those two clicks,
+    // so a triple-tap arrives as scale 2.0 + one click. Pinches give other factors and are ignored.
+    @Override public void onScale(float fx, float fy, float factor) {
+        if (Math.abs(factor - 2f) < 0.01f) addTaps(2, AFTER_ZOOM_WINDOW_MS);
+    }
+
+    @Override public void onClick(float x, float y) { addTaps(1, TAP_WINDOW_MS); }  // main thread; needs car API 5
+
+    private void addTaps(int n, long windowMs) {
+        taps += n;
+        main.removeCallbacks(resolveTaps);
+        if (taps >= 3) resolveTaps.run(); else main.postDelayed(resolveTaps, windowMs);
+    }
 
     @Override public void onSurfaceAvailable(@NonNull SurfaceContainer c) {
         Surface s = c.getSurface();
@@ -89,12 +118,18 @@ final class VizRenderer implements SurfaceCallback {
         }
 
         if (Native.create(w, h, FPS)) {
+            testIdx = -1;
             loadRandom(false);
             long lastSwitch = System.nanoTime(), frames = 0, fpsT = lastSwitch;
             while (running) {
                 long t0 = System.nanoTime();
-                if (nextRequested || t0 - lastSwitch > PRESET_SECONDS * 1_000_000_000L) {
+                if (testRequested && tests.length > 0) {
+                    testRequested = false;
+                    testIdx = (testIdx + 1) % tests.length;
+                    load("test-presets/" + tests[testIdx], false);
+                } else if (nextRequested || (testIdx < 0 && t0 - lastSwitch > PRESET_SECONDS * 1_000_000_000L)) {
                     nextRequested = false;
+                    testIdx = -1;
                     loadRandom(true);
                     lastSwitch = t0;
                 }
@@ -124,15 +159,24 @@ final class VizRenderer implements SurfaceCallback {
         EGL14.eglTerminate(dpy);
     }
 
+    /** Shuffled playlist: every preset once before any repeats, and never the same one twice in a row. */
     private void loadRandom(boolean smooth) {
         if (presets.length == 0) return;
-        String name = presets[rnd.nextInt(presets.length)];
-        try (InputStream in = assets.open("presets/" + name)) {
-            byte[] b = in.readAllBytes();
-            Native.loadPreset(b, smooth);
-            Log.i(TAG, "preset " + name);
+        if (bag.isEmpty()) {
+            java.util.Collections.addAll(bag, presets);
+            java.util.Collections.shuffle(bag);
+            if (bag.size() > 1 && bag.get(bag.size() - 1).equals(current)) java.util.Collections.swap(bag, 0, bag.size() - 1);
+        }
+        current = bag.remove(bag.size() - 1);
+        load("presets/" + current, smooth);
+    }
+
+    private void load(String path, boolean smooth) {
+        try (InputStream in = assets.open(path)) {
+            Native.loadPreset(in.readAllBytes(), smooth);
+            Log.i(TAG, "preset " + path);
         } catch (IOException e) {
-            Log.w(TAG, "preset load failed " + name, e);
+            Log.w(TAG, "preset load failed " + path, e);
         }
     }
 }

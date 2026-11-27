@@ -80,9 +80,9 @@ public final class VizCarAppService extends CarAppService {
         }
 
         @NonNull @Override public Template onGetTemplate() {
-            ActionStrip strip = new ActionStrip.Builder()
-                    .addAction(new Action.Builder().setTitle("Next").setOnClickListener(renderer::next).build())
-                    .build();
+            // NavigationTemplate requires a non-empty strip; the app icon is the least intrusive legal action.
+            // Control is by tapping the visuals (VizRenderer.onClick).
+            ActionStrip strip = new ActionStrip.Builder().addAction(Action.APP_ICON).build();
             return new NavigationTemplate.Builder().setActionStrip(strip).build();
         }
     }
